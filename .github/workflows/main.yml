@@ -3,47 +3,34 @@ name: test1
 on:
   push:
     branches:
-      - master  # Deploy on pushes to the master branch
+      - main
   pull_request:
     branches:
-      - master  # Run on pull requests to the master branch
-
-
+      - main
 
 jobs:
-  build-and-deploy:
+  deploy-to-github-pages:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # Checkout the code
+      - uses: actions/checkout@v4
 
-      # Setup .NET Core
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      # Install .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x  # Specify the .NET SDK version
+          dotnet-version: 8.0.x
+          
+      # Install dotnet wasm buildtools workload
+      - name: Install .NET WASM Build Tools
+        run: dotnet workload install wasm-tools
+          
+      # Publishes Blazor project to the release-folder
+      - name: Publish .NET Core Project
+        run: dotnet publish ./Web/Web.csproj -c:Release -p:GHPages=true -o dist/Web --nologo
 
-      # Restore and build the application
-      - name: Restore and Build
-        run: dotnet publish BlazorWasmGames3.csproj -c Release -o release --nologo
-
-      # changes the base-tag in index.html from '/' to 'BlazorWasmGames3' to match GitHub Pages repository subdirectory
-      - name: Change base-tag in index.html from / to BlazorWasmGames3
-        run: sed -i 's/<base href="\/" \/>/<base href="\/BlazorWasmGames3\/" \/>/g' release/wwwroot/index.html
-    
-      # copy index.html to 404.html to serve the same file when a file is not found
-      - name: copy index.html to 404.html
-        run: cp release/wwwroot/index.html release/wwwroot/404.html
-
-      # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
-      - name: Add .nojekyll file
-        run: touch release/wwwroot/.nojekyll
-
-      # Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Commit wwwroot to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: release/wwwroot  # Path to the published Blazor WebAssembly files
+          BRANCH: gh-pages
+          FOLDER: dist/Web/wwwroot
