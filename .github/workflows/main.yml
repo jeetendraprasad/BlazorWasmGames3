@@ -29,7 +29,19 @@ jobs:
       - name: Restore and Build
         run: |
           dotnet restore
-          dotnet publish -c Release -o build
+          run: dotnet publish BlazorWasmGames3.csproj -c Release -o release --nologo
+
+      # changes the base-tag in index.html from '/' to 'BlazorWasmGames3' to match GitHub Pages repository subdirectory
+      - name: Change base-tag in index.html from / to BlazorWasmGames3
+        run: sed -i 's/<base href="\/" \/>/<base href="\/BlazorWasmGames3\/" \/>/g' release/wwwroot/index.html
+    
+      # copy index.html to 404.html to serve the same file when a file is not found
+      - name: copy index.html to 404.html
+        run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+      # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
+      - name: Add .nojekyll file
+        run: touch release/wwwroot/.nojekyll
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
