@@ -1,0 +1,37 @@
+name: Deploy Blazor WebAssembly from chatgpt
+
+on:
+  push:
+    branches:
+      - master  # Deploy on pushes to the main branch
+  pull_request:
+    branches:
+      - master  # Run on pull requests to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup .NET Core
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0  # Specify the .NET SDK version
+
+      # Restore and build the application
+      - name: Restore and Build
+        run: |
+          dotnet restore
+          dotnet publish -c Release -o build
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/wwwroot  # Path to the published Blazor WebAssembly files
