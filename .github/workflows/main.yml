@@ -46,4 +46,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/wwwroot  # Path to the published Blazor WebAssembly files
+          publish_dir: release/wwwroot  # Path to the published Blazor WebAssembly files
