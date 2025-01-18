@@ -27,9 +27,7 @@ jobs:
 
       # Restore and build the application
       - name: Restore and Build
-        run: |
-          dotnet restore
-          run: dotnet publish BlazorWasmGames3.csproj -c Release -o release --nologo
+        run: dotnet publish BlazorWasmGames3.csproj -c Release -o release --nologo
 
       # changes the base-tag in index.html from '/' to 'BlazorWasmGames3' to match GitHub Pages repository subdirectory
       - name: Change base-tag in index.html from / to BlazorWasmGames3
