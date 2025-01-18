@@ -8,6 +8,7 @@ on:
     branches:
       - master  # Run on pull requests to the master branch
 
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
